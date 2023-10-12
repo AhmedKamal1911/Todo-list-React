@@ -1,24 +1,85 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import TodoList from "./components/TodoList";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { TodosContext } from "./context/TodosContext";
+import { v4 as uuidv4 } from "uuid";
+import { useState, useEffect } from "react";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: ["Alexandria"],
+  },
+  palette: {
+    primary: {
+      main: "#6a1b9a",
+    },
+  },
+});
+const initialTodos = [
+  {
+    id: uuidv4(),
+    title: "قراءة كتاب",
+    details: "سشبيشسبشبش",
+    isCompleted: false,
+  },
+  {
+    id: uuidv4(),
+    title: "قراءة تاب",
+    details: "سشبيشسبشبش",
+    isCompleted: false,
+  },
+];
 
 function App() {
+  const [todos, setTodos] = useState(initialTodos);
+  const [titleInput, setTitleInput] = useState("");
+
+  useEffect(() => {
+    const storageTodos = JSON.parse(localStorage.getItem("todos")) ?? [];
+    setTodos(storageTodos);
+  }, []);
+
+  function handleAddClick() {
+    if (titleInput !== "") {
+      const newTodos = [
+        ...todos,
+        {
+          title: titleInput,
+          id: uuidv4(),
+          details: "",
+          isCompleted: false,
+        },
+      ];
+
+      setTodos(newTodos);
+
+      localStorage.setItem("todos", JSON.stringify(newTodos));
+
+      setTitleInput("");
+    }
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <ThemeProvider theme={theme}>
+      <TodosContext.Provider value={{ todos, setTodos }}>
+        <div
+          className="App"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+            background: "#263238",
+            direction: "rtl",
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <TodoList
+            handleAddClick={handleAddClick}
+            setTitleInput={setTitleInput}
+            titleInput={titleInput}
+          />
+        </div>
+      </TodosContext.Provider>
+    </ThemeProvider>
   );
 }
 
